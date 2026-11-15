@@ -1,12 +1,23 @@
 import React from 'react';
 import { ExternalLink, RotateCcw } from 'lucide-react';
-import { FINAL_CARDS, FINAL_SCREEN_TITLE } from '../game/missionData';
+import { UI_TEXT, getFinalCards } from '../game/i18n';
+import { Language } from '../game/tts';
+import { LanguageToggle } from './LanguageToggle';
 
 interface FinalScreenProps {
+  lang: Language;
+  onChangeLang: (lang: Language) => void;
   onPlayAgain: () => void;
 }
 
-export const FinalScreen: React.FC<FinalScreenProps> = ({ onPlayAgain }) => {
+export const FinalScreen: React.FC<FinalScreenProps> = ({
+  lang,
+  onChangeLang,
+  onPlayAgain,
+}) => {
+  const ui = UI_TEXT[lang];
+  const cards = getFinalCards(lang);
+
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#040318]/92 p-4 md:p-8 overflow-y-auto pointer-events-auto">
       <div
@@ -15,20 +26,24 @@ export const FinalScreen: React.FC<FinalScreenProps> = ({ onPlayAgain }) => {
         aria-labelledby="final-screen-title"
         className="w-full max-w-4xl bg-[#0b1120] border-2 border-slate-500 p-6 md:p-8 shadow-[0_8px_0_#040318] space-y-6 my-auto"
       >
+        <div className="flex justify-end">
+          <LanguageToggle lang={lang} onChange={onChangeLang} />
+        </div>
+
         <div className="text-center space-y-2">
           <div className="text-xs font-pixel text-emerald-300 tracking-wider">
-            4/4 MATERIAIS INSTALADOS · RETORNO CONCLUÍDO
+            {ui.finalBadge}
           </div>
           <h1
             id="final-screen-title"
             className="font-pixel text-lg md:text-2xl text-amber-300 leading-snug max-w-3xl mx-auto"
           >
-            {FINAL_SCREEN_TITLE}
+            {ui.finalTitle}
           </h1>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {FINAL_CARDS.map((card) => {
+          {cards.map((card) => {
             const imgSrc =
               card.id === 'surveyor3' ? '/surveyor3.png' : '/rtg.png';
             return (
@@ -80,7 +95,7 @@ export const FinalScreen: React.FC<FinalScreenProps> = ({ onPlayAgain }) => {
             className="inline-flex items-center gap-2 font-pixel text-xs md:text-sm bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-7 py-3.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
           >
             <RotateCcw className="w-4 h-4" aria-hidden="true" />
-            <span>Jogar Novamente</span>
+            <span>{ui.playAgainBtn}</span>
           </button>
         </div>
       </div>

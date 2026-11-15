@@ -2,13 +2,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Rocket, Settings, Volume2, VolumeX } from 'lucide-react';
 import { EquipmentModal } from './components/EquipmentModal';
 import { FinalScreen } from './components/FinalScreen';
+import { LanguageToggle } from './components/LanguageToggle';
 import { retroAudio } from './game/audio';
+import { UI_TEXT, getLocalizedMissionBubbleText } from './game/i18n';
 import {
   ASTRONAUT_START_MAP_POS,
   EARTH_MAP_POS,
   EquipmentId,
   EquipmentProgress,
-  INTRO_MISSION_TEXT,
   MAP_ASPECT_RATIO,
   NAVE_MAP_POS,
   PROXIMITY_RADIUS,
@@ -23,10 +24,9 @@ import {
   createInitialEquipmentProgress,
   createInitialInventory,
   getMapDistance,
-  getMissionBubbleText,
   isNaveReady,
 } from './game/missionData';
-import { tts } from './game/tts';
+import { Language, tts } from './game/tts';
 
 type AppPhase = 'intro' | 'map' | 'equipment' | 'takeoff' | 'final';
 type InteractiveTarget = EquipmentId | 'nave';
@@ -56,8 +56,9 @@ export default function App() {
   const [facing, setFacing] = useState<'left' | 'right'>('right');
   const [isMoving, setIsMoving] = useState(false);
   const [walkBobY, setWalkBobY] = useState(0);
+  const [lang, setLang] = useState<Language>('pt');
   const [nearbyTarget, setNearbyTarget] = useState<InteractiveTarget | null>(null);
-  const [naveStatusMessage, setNaveStatusMessage] = useState<string | null>(null);
+  const [showDamagedNotice, setShowDamagedNotice] = useState(false);
   const [takeoffProgress, setTakeoffProgress] = useState(0);
   const [autoTts, setAutoTts] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -83,9 +84,22 @@ export default function App() {
     inventoryRef.current = inventory;
   }, [inventory]);
 
+  const ui = UI_TEXT[lang];
   const collectedCount = countCollectedParts(inventory);
   const naveReady = isNaveReady(collectedCount);
-  const missionBubbleText = getMissionBubbleText(inventory, equipmentProgress);
+  const missionBubbleText = getLocalizedMissionBubbleText(
+    inventory,
+    equipmentProgress,
+    lang
+  );
+  const naveStatusMessage = showDamagedNotice
+    ? ui.damagedShipStatus(collectedCount, TOTAL_REQUIRED_PARTS)
+    : null;
+
+  const handleChangeLang = useCallback((nextLang: Language) => {
+    tts.stop();
+    setLang(nextLang);
+  }, []);
 
   const startMission = useCallback(() => {
     tts.stop();
@@ -106,7 +120,7 @@ export default function App() {
     setIsMoving(false);
     setWalkBobY(0);
     setNearbyTarget(null);
-    setNaveStatusMessage(null);
+    setShowDamagedNotice(false);
     setTakeoffProgress(0);
     setActiveEquipment(null);
     setPhase('map');
@@ -131,21 +145,19 @@ export default function App() {
     if (target === 'nave') {
       const count = countCollectedParts(inventoryRef.current);
       if (isNaveReady(count)) {
-        setNaveStatusMessage(null);
+        setShowDamagedNotice(false);
         takeoffRef.current = 0;
         setTakeoffProgress(0);
         setPhase('takeoff');
         retroAudio.playEnterStage();
       } else {
-        setNaveStatusMessage(
-          `Nave avariada (${count}/${TOTAL_REQUIRED_PARTS} materiais). Explore o RTG e a Surveyor 3 para coletar as peças restantes.`
-        );
+        setShowDamagedNotice(true);
         retroAudio.playHurt();
       }
       return;
     }
 
-    setNaveStatusMessage(null);
+    setShowDamagedNotice(false);
     setActiveEquipment(target);
     setPhase('equipment');
     retroAudio.playEnterStage();
@@ -293,7 +305,7 @@ export default function App() {
           nearbyRef.current = closest;
           setNearbyTarget(closest);
           if (closest !== 'nave') {
-            setNaveStatusMessage(null);
+            setShowDamagedNotice(false);
           }
         }
       }
@@ -316,7 +328,7 @@ export default function App() {
       const yPercent = ((e.clientY - rect.top) / rect.height) * 100;
       const clamped = clampToLunarSurface(xPercent, yPercent);
       walkTargetRef.current = clamped;
-      setNaveStatusMessage(null);
+      setShowDamagedNotice(false);
       retroAudio.playStep();
     },
     []
@@ -338,7 +350,7 @@ export default function App() {
         pos.y + 5
       );
       walkTargetRef.current = stopPoint;
-      setNaveStatusMessage(null);
+      setShowDamagedNotice(false);
       retroAudio.playStep();
     },
     [interactWithTarget]
@@ -413,7 +425,7 @@ export default function App() {
         {/* 1. Background Map Image (mapa_lunar.png) */}
         <img
           src="/mapa_lunar.png"
-          alt="Mapa Lunar"
+          alt={ui.mapAlt}
           draggable={false}
           style={{ background: 'transparent', mixBlendMode: 'normal' }}
           className="absolute inset-0 w-full h-full object-contain pixelated pointer-events-none select-none"
@@ -434,7 +446,7 @@ export default function App() {
               }}
               className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
             >
-              [Pressione E ou Clique para Interagir]
+              {ui.interactPrompt}
             </button>
           )}
 
@@ -464,7 +476,7 @@ export default function App() {
                 : 'border-cyan-400/70 text-cyan-200'
             }`}
           >
-            {equipmentProgress.rtg.completed ? 'RTG · Concluído ✓' : 'RTG'}
+            {equipmentProgress.rtg.completed ? `RTG · ${ui.completedBadge}` : 'RTG'}
           </span>
         </div>
 
@@ -483,7 +495,7 @@ export default function App() {
               }}
               className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
             >
-              [Pressione E ou Clique para Interagir]
+              {ui.interactPrompt}
             </button>
           )}
 
@@ -514,7 +526,7 @@ export default function App() {
             }`}
           >
             {equipmentProgress.surveyor3.completed
-              ? 'Surveyor 3 · Concluído ✓'
+              ? `Surveyor 3 · ${ui.completedBadge}`
               : 'Surveyor 3'}
           </span>
         </div>
@@ -541,7 +553,7 @@ export default function App() {
               }}
               className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
             >
-              [Pressione E ou Clique para Interagir]
+              {ui.interactPrompt}
             </button>
           )}
 
@@ -550,7 +562,7 @@ export default function App() {
             data-testid="object-nave"
             disabled={phase === 'takeoff'}
             onClick={(e) => handleObjectClick(e, 'nave', NAVE_MAP_POS)}
-            aria-label="Nave"
+            aria-label={ui.shipLabel}
             className={`relative focus:outline-none transition-transform duration-150 ${
               phase === 'takeoff'
                 ? 'cursor-default'
@@ -580,7 +592,7 @@ export default function App() {
 
             <img
               src="/nave.png"
-              alt="Nave"
+              alt={ui.shipLabel}
               draggable={false}
               style={{ background: 'transparent', mixBlendMode: 'normal' }}
               className="w-24 h-24 md:w-32 md:h-32 object-contain pixelated drop-shadow-[0_8px_8px_rgba(0,0,0,0.7)]"
@@ -603,7 +615,7 @@ export default function App() {
                   : 'border-slate-500 text-slate-200'
               }`}
             >
-              {naveReady ? 'Nave Pronta!' : 'Nave'}
+              {naveReady ? ui.shipReadyLabel : ui.shipLabel}
             </span>
           )}
         </div>
@@ -621,7 +633,7 @@ export default function App() {
           >
             <img
               src="/astronauta.png"
-              alt="Astronauta"
+              alt={ui.astronautAlt}
               draggable={false}
               style={{
                 background: 'transparent',
@@ -642,9 +654,7 @@ export default function App() {
         {/* Takeoff Banner */}
         {phase === 'takeoff' && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#040318]/90 border-2 border-amber-400 px-6 py-2.5 font-pixel text-xs md:text-sm text-amber-300 whitespace-nowrap">
-            {takeoffProgress < 0.25
-              ? 'IGNIÇÃO DOS MOTORES... DECOLANDO!'
-              : 'RETORNANDO PARA A TERRA...'}
+            {takeoffProgress < 0.25 ? ui.takeoffIgnition : ui.takeoffReturning}
           </div>
         )}
       </div>
@@ -659,7 +669,7 @@ export default function App() {
                 className={`w-4 h-4 ${naveReady ? 'text-emerald-400' : 'text-amber-300'}`}
                 aria-hidden="true"
               />
-              <span className="font-pixel text-xs text-slate-100">Reparo da Nave</span>
+              <span className="font-pixel text-xs text-slate-100">{ui.shipRepairHud}</span>
               <span
                 data-testid="materials-counter"
                 className={`font-mono-tabular font-bold text-xs px-2 py-0.5 border ${
@@ -668,7 +678,7 @@ export default function App() {
                     : 'bg-slate-900 border-slate-600 text-amber-300'
                 }`}
               >
-                {collectedCount}/{TOTAL_REQUIRED_PARTS} materiais
+                {collectedCount}/{TOTAL_REQUIRED_PARTS} {ui.materialsUnit}
               </span>
             </div>
 
@@ -717,7 +727,7 @@ export default function App() {
                     naveReady ? 'text-emerald-300' : 'text-amber-300'
                   }`}
                 >
-                  OBJETIVO DA MISSÃO
+                  {ui.missionObjectiveTitle}
                 </div>
                 <p className="text-xs leading-snug">{missionBubbleText}</p>
               </div>
@@ -732,19 +742,22 @@ export default function App() {
             </div>
           )}
 
-          {/* Right Audio Toggle */}
-          <button
-            type="button"
-            onClick={() => {
-              retroAudio.muted = !retroAudio.muted;
-              setMuted(retroAudio.muted);
-            }}
-            aria-label={muted ? 'Ativar efeitos sonoros' : 'Silenciar efeitos sonoros'}
-            className="pointer-events-auto order-2 md:order-3 shrink-0 flex items-center gap-1.5 font-pixel text-[11px] bg-[#0b1120]/95 hover:bg-slate-800 text-slate-200 border-2 border-slate-600 px-3 py-2 shadow-[0_4px_0_#040318] cursor-pointer"
-          >
-            {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            <span>{muted ? 'Mudo [M]' : 'Som [M]'}</span>
-          </button>
+          {/* Right Language & Audio Controls */}
+          <div className="pointer-events-auto order-2 md:order-3 shrink-0 flex items-center gap-2">
+            <LanguageToggle lang={lang} onChange={handleChangeLang} />
+            <button
+              type="button"
+              onClick={() => {
+                retroAudio.muted = !retroAudio.muted;
+                setMuted(retroAudio.muted);
+              }}
+              aria-label={muted ? ui.soundEnableAria : ui.soundMuteAria}
+              className="flex items-center gap-1.5 font-pixel text-[11px] bg-[#0b1120]/95 hover:bg-slate-800 text-slate-200 border-2 border-slate-600 px-3 py-2 shadow-[0_4px_0_#040318] cursor-pointer"
+            >
+              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              <span>{muted ? ui.soundMuted : ui.soundOn}</span>
+            </button>
+          </div>
         </div>
       )}
 
@@ -776,12 +789,12 @@ export default function App() {
               className="pointer-events-auto flex items-center gap-2 font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-5 py-2.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
             >
               <Rocket className="w-4 h-4" aria-hidden="true" />
-              <span>Nave reparada! Aproxime-se e clique na nave para voltar à Terra.</span>
+              <span>{ui.shipReadyBanner}</span>
             </button>
           )}
 
           <div className="pointer-events-auto bg-[#0b1120]/90 border border-slate-700 px-4 py-1.5 text-[11px] font-pixel text-slate-300 text-center shadow-[0_3px_0_#040318]">
-            WASD / Setas ou Clique no mapa para andar · E / Espaço / Clique perto para interagir
+            {ui.controlsHint}
           </div>
         </div>
       )}
@@ -795,14 +808,17 @@ export default function App() {
             aria-labelledby="intro-title"
             className="w-full max-w-lg bg-[#0b1120] border-2 border-slate-500 p-6 md:p-8 shadow-[0_8px_0_#040318] text-center space-y-5"
           >
+            <div className="flex justify-end">
+              <LanguageToggle lang={lang} onChange={handleChangeLang} />
+            </div>
             <div className="text-xs font-pixel text-cyan-300 tracking-widest">
-              AVENTURA EDUCATIVA 16-BIT
+              {ui.introBadge}
             </div>
             <h1 id="intro-title" className="font-pixel text-2xl md:text-3xl text-amber-300">
-              Missão na Lua
+              {ui.introTitle}
             </h1>
             <p className="text-sm md:text-base text-slate-200 leading-relaxed">
-              {INTRO_MISSION_TEXT}
+              {ui.introText}
             </p>
             <button
               type="button"
@@ -810,7 +826,7 @@ export default function App() {
               onClick={startMission}
               className="font-pixel text-sm bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-8 py-3.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
             >
-              Iniciar Missão
+              {ui.startMissionBtn}
             </button>
           </div>
         </div>
@@ -821,6 +837,8 @@ export default function App() {
         <EquipmentModal
           key={activeEquipment}
           equipmentId={activeEquipment}
+          lang={lang}
+          onChangeLang={handleChangeLang}
           inventory={inventory}
           initialProgress={equipmentProgress[activeEquipment]}
           autoTts={autoTts}
@@ -833,7 +851,13 @@ export default function App() {
       )}
 
       {/* FINAL SCREEN WITH NASA LINKS */}
-      {phase === 'final' && <FinalScreen onPlayAgain={startMission} />}
+      {phase === 'final' && (
+        <FinalScreen
+          lang={lang}
+          onChangeLang={handleChangeLang}
+          onPlayAgain={startMission}
+        />
+      )}
     </main>
   );
 }

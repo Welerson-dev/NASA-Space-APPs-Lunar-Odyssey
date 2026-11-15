@@ -8,8 +8,8 @@ import {
   VolumeX,
   Zap,
 } from 'lucide-react';
+import { UI_TEXT, getEquipmentScript } from '../game/i18n';
 import {
-  EQUIPMENT_SCRIPTS,
   EquipmentId,
   EquipmentProgress,
   PartKey,
@@ -19,11 +19,14 @@ import {
   StageStep,
   evaluateQuizAnswer,
 } from '../game/missionData';
-import { tts } from '../game/tts';
+import { AudioClip, Language, tts } from '../game/tts';
+import { LanguageToggle } from './LanguageToggle';
 import { StageAnimationView } from './StageAnimations';
 
 interface EquipmentModalProps {
   equipmentId: EquipmentId;
+  lang: Language;
+  onChangeLang: (lang: Language) => void;
   inventory: RepairInventory;
   initialProgress: EquipmentProgress;
   autoTts: boolean;
@@ -49,6 +52,8 @@ const PartVisualIcon: React.FC<{ partKey: PartKey }> = ({ partKey }) => {
 
 export const EquipmentModal: React.FC<EquipmentModalProps> = ({
   equipmentId,
+  lang,
+  onChangeLang,
   inventory,
   initialProgress,
   autoTts,
@@ -58,7 +63,8 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
   onCompleteEquipment,
   onCloseToMap,
 }) => {
-  const script = EQUIPMENT_SCRIPTS[equipmentId];
+  const script = getEquipmentScript(equipmentId, lang);
+  const ui = UI_TEXT[lang];
   const equipmentImg = equipmentId === 'surveyor3' ? '/surveyor3.png' : '/rtg.png';
   const [isReadOnlySummary] = useState<boolean>(() => initialProgress.completed);
 
@@ -78,6 +84,11 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
       tts.stop();
     };
   }, []);
+
+  // Reset active speaking state when language switches
+  useEffect(() => {
+    setSpeakingCode(null);
+  }, [lang]);
 
   // Persist progress whenever active state changes
   useEffect(() => {
@@ -113,26 +124,45 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
     !isReadOnlySummary && currentBalloons
       ? currentBalloons[balloonIdx]
       : !isReadOnlySummary && step === 4
-      ? { code: script.reward1.speechCode, text: script.reward1.speechText }
+      ? {
+          code: script.reward1.speechCode,
+          text: script.reward1.speechText,
+          audioClip: script.reward1.audioClip,
+        }
       : !isReadOnlySummary && step === 7
-      ? { code: script.reward2.speechCode, text: script.reward2.speechText }
+      ? {
+          code: script.reward2.speechCode,
+          text: script.reward2.speechText,
+          audioClip: script.reward2.audioClip,
+        }
       : null;
 
-  // Auto-speak when enabled and speech changes
+  // Auto-speak when enabled and speech or language changes
   useEffect(() => {
     if (!autoTts || !currentSpeech) return;
     setSpeakingCode(currentSpeech.code);
-    tts.speak(currentSpeech.text, () => setSpeakingCode(null));
-  }, [autoTts, currentSpeech?.code]);
+    tts.speak(
+      currentSpeech.text,
+      lang,
+      () => setSpeakingCode(null),
+      currentSpeech.audioClip
+    );
+  }, [autoTts, currentSpeech?.code, lang]);
 
-  const handleSpeakClick = (code: string, text: string) => {
+  const handleSpeakClick = (code: string, text: string, audioClip?: AudioClip) => {
     if (speakingCode === code) {
       tts.stop();
       setSpeakingCode(null);
       return;
     }
     setSpeakingCode(code);
-    tts.speak(text, () => setSpeakingCode(null));
+    tts.speak(text, lang, () => setSpeakingCode(null), audioClip);
+  };
+
+  const handlePreviousBalloon = () => {
+    tts.stop();
+    setSpeakingCode(null);
+    setBalloonIdx((i) => Math.max(0, i - 1));
   };
 
   const handleContinueBalloon = () => {
@@ -190,7 +220,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
     return (
       <div className="space-y-4">
-        <div className="text-xs font-pixel text-amber-300">DESAFIO DE CONHECIMENTO</div>
+        <div className="text-xs font-pixel text-amber-300">{ui.quizHeading}</div>
         <h3 className="text-base md:text-lg font-semibold text-white leading-snug">
           {question.prompt}
         </h3>
@@ -251,7 +281,9 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               onClick={() => handleCollectRewardPart(reward, nextStep)}
               className="font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#05070e] cursor-pointer"
             >
-              {alreadyOwned ? `Ver Peça: ${reward.partName}` : question.collectButtonLabel}
+              {alreadyOwned
+                ? `${ui.viewPartPrefix}: ${reward.partName}`
+                : question.collectButtonLabel}
             </button>
           </div>
         )}
@@ -272,11 +304,12 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
           <div className="flex items-center gap-3">
             <span className="font-pixel text-xs text-cyan-300">{script.shortName}</span>
             <span className="text-xs text-slate-400 font-mono-tabular">
-              {isReadOnlySummary ? 'Resumo · Concluído ✓' : `Etapa ${step}/9`}
+              {isReadOnlySummary ? ui.modalSummaryHeader : ui.modalStepOf9(step)}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <LanguageToggle lang={lang} onChange={onChangeLang} className="shadow-none" />
             {!isReadOnlySummary && (
               <button
                 type="button"
@@ -288,7 +321,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 ) : (
                   <VolumeX className="w-3.5 h-3.5 text-slate-400" />
                 )}
-                <span>{autoTts ? 'Auto-voz: ON' : 'Auto-voz: OFF'}</span>
+                <span>{autoTts ? ui.autoVoiceOn : ui.autoVoiceOff}</span>
               </button>
             )}
             <button
@@ -296,7 +329,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               onClick={handleCloseModal}
               className="px-2.5 py-1.5 text-[11px] font-pixel border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer"
             >
-              Mapa
+              {ui.mapButton}
             </button>
           </div>
         </div>
@@ -314,7 +347,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               <div className="space-y-2 text-center sm:text-left">
                 <div className="inline-flex items-center gap-1.5 text-xs font-pixel text-emerald-300">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Concluído ✓</span>
+                  <span>{ui.completedBadge}</span>
                 </div>
                 <h2
                   id="equipment-modal-title"
@@ -354,7 +387,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               ))}
             </div>
 
-            <StageAnimationView equipmentId={equipmentId} />
+            <StageAnimationView equipmentId={equipmentId} lang={lang} />
             <p className="text-center text-sm text-cyan-200">{script.animationCaption}</p>
 
             <div className="flex justify-end">
@@ -401,7 +434,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   </div>
                   <div className="bg-slate-900/70 border border-slate-700 p-3.5">
                     <div className="text-[11px] font-pixel text-emerald-300 mb-1">
-                      Peças desta etapa
+                      {ui.stagePartsTitle}
                     </div>
                     <p className="text-slate-200">{script.stagePartsSummary}</p>
                   </div>
@@ -428,20 +461,20 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 <div className="flex items-center justify-between text-xs text-slate-400">
                   <span className="font-pixel text-cyan-300">
                     {step === 2
-                      ? 'Bloco A · Exploração'
+                      ? ui.blockATitle
                       : step === 5
-                      ? 'Bloco B · Descoberta'
-                      : 'Bloco C · História'}
+                      ? ui.blockBTitle
+                      : ui.blockCTitle}
                   </span>
                   <span className="font-mono-tabular">
-                    Fala {balloonIdx + 1} de {currentBalloons.length}
+                    {ui.speechProgress(balloonIdx + 1, currentBalloons.length)}
                   </span>
                 </div>
 
                 <div className="flex items-start gap-4 bg-[#070b16] border-2 border-slate-600 p-4">
                   <img
                     src="/astronauta.png"
-                    alt="Astronauta"
+                    alt={ui.astronautAlt}
                     style={{ background: 'transparent', mixBlendMode: 'normal' }}
                     className="w-14 h-16 object-contain pixelated shrink-0 mt-1"
                   />
@@ -452,20 +485,22 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                       </span>
                       <button
                         type="button"
+                        data-testid="speak-balloon"
                         onClick={() =>
                           handleSpeakClick(
                             currentBalloons[balloonIdx].code,
-                            currentBalloons[balloonIdx].text
+                            currentBalloons[balloonIdx].text,
+                            currentBalloons[balloonIdx].audioClip
                           )
                         }
-                        aria-label={`Ouvir fala ${currentBalloons[balloonIdx].code}`}
+                        aria-label={ui.listenAria(currentBalloons[balloonIdx].code)}
                         className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 cursor-pointer"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                         <span>
                           {speakingCode === currentBalloons[balloonIdx].code
-                            ? 'Parar'
-                            : 'Ouvir'}
+                            ? ui.stopBtn
+                            : ui.listenBtn}
                         </span>
                       </button>
                     </div>
@@ -475,13 +510,28 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between gap-3">
                   <button
                     type="button"
+                    data-testid="prev-balloon"
+                    disabled={balloonIdx === 0}
+                    onClick={handlePreviousBalloon}
+                    className={`font-pixel text-xs px-5 py-3 border-2 shadow-[0_3px_0_#040318] transition-colors ${
+                      balloonIdx === 0
+                        ? 'bg-slate-900 border-slate-700 text-slate-500 opacity-45 cursor-not-allowed'
+                        : 'bg-slate-800 hover:bg-slate-700 border-slate-500 text-slate-100 cursor-pointer'
+                    }`}
+                  >
+                    {ui.previousBtn}
+                  </button>
+
+                  <button
+                    type="button"
+                    data-testid="next-balloon"
                     onClick={handleContinueBalloon}
                     className="font-pixel text-xs bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
                   >
-                    Continuar
+                    {ui.continueBtn}
                   </button>
                 </div>
               </div>
@@ -517,7 +567,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                     <div className="flex items-start gap-4 bg-[#070b16] border-2 border-slate-600 p-4">
                       <img
                         src="/astronauta.png"
-                        alt="Astronauta"
+                        alt={ui.astronautAlt}
                         style={{ background: 'transparent', mixBlendMode: 'normal' }}
                         className="w-14 h-16 object-contain pixelated shrink-0 mt-1"
                       />
@@ -528,15 +578,22 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                           </span>
                           <button
                             type="button"
+                            data-testid="speak-reward"
                             onClick={() =>
-                              handleSpeakClick(reward.speechCode, reward.speechText)
+                              handleSpeakClick(
+                                reward.speechCode,
+                                reward.speechText,
+                                reward.audioClip
+                              )
                             }
-                            aria-label={`Ouvir fala ${reward.speechCode}`}
+                            aria-label={ui.listenAria(reward.speechCode)}
                             className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 cursor-pointer"
                           >
                             <Volume2 className="w-3.5 h-3.5" />
                             <span>
-                              {speakingCode === reward.speechCode ? 'Parar' : 'Ouvir'}
+                              {speakingCode === reward.speechCode
+                                ? ui.stopBtn
+                                : ui.listenBtn}
                             </span>
                           </button>
                         </div>
@@ -558,7 +615,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                       </div>
                       <div className="space-y-1.5">
                         <div className="font-pixel text-[11px] text-emerald-200">
-                          +1 MATERIAL ADICIONADO · {reward.partName}
+                          {ui.materialAddedPrefix} · {reward.partName}
                         </div>
                         <div className="font-pixel text-sm text-emerald-300">
                           {reward.cardTitle}
@@ -590,7 +647,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
             {/* ETAPA 9: Animação Final e Encerramento */}
             {step === 9 && (
               <div className="space-y-4">
-                <StageAnimationView equipmentId={equipmentId} />
+                <StageAnimationView equipmentId={equipmentId} lang={lang} />
 
                 <div className="text-center space-y-2">
                   <p className="text-sm font-medium text-cyan-200">

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Flame, Snowflake, Zap, Cpu } from 'lucide-react';
-import { EquipmentId, NEIL_ARMSTRONG_QUOTE } from '../game/missionData';
+import { UI_TEXT } from '../game/i18n';
+import { EquipmentId } from '../game/missionData';
+import { Language } from '../game/tts';
 
-export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
-  equipmentId,
-}) => {
+export const StageAnimationView: React.FC<{
+  equipmentId: EquipmentId;
+  lang: Language;
+}> = ({ equipmentId, lang }) => {
   const [elapsed, setElapsed] = useState(0);
+  const ui = UI_TEXT[lang];
 
   useEffect(() => {
     let rafId = 0;
@@ -58,7 +62,7 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
       <div className="relative w-full max-w-[540px] aspect-[16/9] mx-auto border-2 border-slate-700 overflow-hidden bg-[#040318]">
         <img
           src="/mapa_lunar.png"
-          alt="Superfície lunar"
+          alt={ui.lunarSurfaceAlt}
           style={{ background: 'transparent', mixBlendMode: 'normal' }}
           className="w-full h-full object-cover object-bottom pixelated opacity-90"
         />
@@ -67,10 +71,10 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
         {/* Year Header */}
         <div className="absolute top-2.5 left-2.5 px-2.5 py-1 bg-[#090b1f]/90 border border-slate-600 font-pixel text-[10px] text-amber-300 z-10">
           {t < 4.2
-            ? '1967 · SURVEYOR 3 (2 QUICOS)'
+            ? ui.s3Year1967
             : flagPlanted
-            ? '1969 · BANDEIRA NA LUA & HOMENAGEM APOLLO'
-            : '1969 · APOLLO 12 VISITANDO A SONDA'}
+            ? ui.s3Year1969Flag
+            : ui.s3Year1969Apollo}
         </div>
 
         {/* Surveyor 3 Probe (Right) */}
@@ -97,7 +101,7 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <img
               src="/nave.png"
-              alt="Módulo Lunar Apollo"
+              alt={ui.apolloModuleAlt}
               style={{ background: 'transparent', mixBlendMode: 'normal' }}
               className="w-full h-full object-contain pixelated drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]"
             />
@@ -116,7 +120,7 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <img
               src="/bandeira_eua.png"
-              alt="Bandeira americana na Lua"
+              alt={ui.usFlagAlt}
               style={{ background: 'transparent', mixBlendMode: 'normal' }}
               className="w-full h-full object-contain pixelated drop-shadow-[0_3px_3px_rgba(0,0,0,0.7)]"
             />
@@ -130,7 +134,7 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
             className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[82%] max-w-[390px] z-20 bg-[#0b1120]/95 border-2 border-amber-300 px-3.5 py-2.5 shadow-[0_4px_0_#040318]"
           >
             <p className="text-xs md:text-[13px] text-white leading-snug font-medium">
-              "{NEIL_ARMSTRONG_QUOTE}"
+              "{ui.neilQuote}"
             </p>
             <div className="mt-1 text-[10px] font-pixel text-amber-300 text-right">
               — Neil Armstrong (Apollo 11, 1969)
@@ -149,7 +153,7 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <img
               src="/astronauta.png"
-              alt="Astronauta na Lua"
+              alt={ui.astronautAlt}
               style={{
                 background: 'transparent',
                 mixBlendMode: 'normal',
@@ -170,10 +174,10 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
     <div className="w-full max-w-[540px] mx-auto border-2 border-slate-700 bg-[#070b16] p-4 space-y-3">
       <div className="flex items-center justify-between border-b border-slate-800 pb-2">
         <span className="font-pixel text-[10px] text-cyan-300">
-          EFEITO SEEBECK · MODELO SNAP-27
+          {ui.seebeckHeader}
         </span>
         <span className="font-mono-tabular text-xs font-bold text-amber-300">
-          ~70 W contínuos
+          {ui.seebeckWatts}
         </span>
       </div>
 
@@ -197,9 +201,11 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <Flame className="w-4 h-4 text-orange-400 mx-auto mb-1" />
             <div className="font-pixel text-[9px] leading-tight text-orange-300">
-              Plutônio 238
+              {ui.seebeckPlutonium}
             </div>
-            <div className="text-[11px] text-slate-300 mt-0.5">Lado Quente</div>
+            <div className="text-[11px] text-slate-300 mt-0.5">
+              {ui.seebeckHotSide}
+            </div>
           </div>
 
           <div
@@ -211,9 +217,11 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <Cpu className="w-4 h-4 text-amber-300 mx-auto mb-1" />
             <div className="font-pixel text-[9px] leading-tight text-amber-200">
-              442 Pares
+              {ui.seebeckPairs}
             </div>
-            <div className="text-[11px] text-slate-300 mt-0.5">Termopares</div>
+            <div className="text-[11px] text-slate-300 mt-0.5">
+              {ui.seebeckThermocouples}
+            </div>
           </div>
 
           <div
@@ -225,9 +233,11 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <Snowflake className="w-4 h-4 text-cyan-300 mx-auto mb-1" />
             <div className="font-pixel text-[9px] leading-tight text-cyan-200">
-              Aletas Frias
+              {ui.seebeckColdFins}
             </div>
-            <div className="text-[11px] text-slate-300 mt-0.5">Lado Frio</div>
+            <div className="text-[11px] text-slate-300 mt-0.5">
+              {ui.seebeckColdSide}
+            </div>
           </div>
 
           <div
@@ -239,9 +249,11 @@ export const StageAnimationView: React.FC<{ equipmentId: EquipmentId }> = ({
           >
             <Zap className="w-4 h-4 text-emerald-300 mx-auto mb-1" />
             <div className="font-pixel text-[9px] leading-tight text-emerald-300">
-              Energia ~70W
+              {ui.seebeckPower}
             </div>
-            <div className="text-[11px] text-slate-300 mt-0.5">Sem peças móveis</div>
+            <div className="text-[11px] text-slate-300 mt-0.5">
+              {ui.seebeckNoMovingParts}
+            </div>
           </div>
         </div>
       </div>
