@@ -247,7 +247,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 type="button"
                 disabled={selected !== null}
                 onClick={() => onSelect(opt.letter)}
-                className={`w-full text-left px-4 py-3 border-2 transition-colors flex items-start gap-3 ${
+                className={`w-full text-left px-3.5 py-3 sm:px-4 min-h-[48px] border-2 transition-colors flex items-start gap-3 ${
                   selected === null ? 'cursor-pointer' : 'cursor-default'
                 } ${borderClass}`}
               >
@@ -263,7 +263,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
         {evalResult && (
           <div
             role="status"
-            className={`p-4 border-2 ${
+            className={`p-3.5 sm:p-4 border-2 ${
               evalResult.isCorrect
                 ? 'border-emerald-500/80 bg-emerald-950/40 text-emerald-100'
                 : 'border-amber-500/80 bg-amber-950/40 text-amber-100'
@@ -279,7 +279,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               type="button"
               data-testid={`collect-${reward.partKey}`}
               onClick={() => handleCollectRewardPart(reward, nextStep)}
-              className="font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#05070e] cursor-pointer"
+              className="w-full sm:w-auto min-h-[46px] font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#05070e] cursor-pointer text-center"
             >
               {alreadyOwned
                 ? `${ui.viewPartPrefix}: ${reward.partName}`
@@ -292,16 +292,16 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#040318]/80 p-3 md:p-6 pointer-events-auto">
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#040318]/80 p-2 sm:p-4 md:p-6 pointer-events-auto">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="equipment-modal-title"
-        className="w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#0b1120] border-2 border-slate-500 shadow-[0_8px_0_#040318] text-slate-100"
+        className="w-full max-w-2xl max-h-[94dvh] overflow-y-auto bg-[#0b1120] border-2 border-slate-500 shadow-[0_8px_0_#040318] text-slate-100"
       >
         {/* Modal Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-[#070b16] border-b border-slate-700">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3 px-3.5 py-2.5 sm:px-5 sm:py-3.5 bg-[#070b16] border-b border-slate-700">
+          <div className="flex items-center gap-2 sm:gap-3">
             <span className="font-pixel text-xs text-cyan-300">{script.shortName}</span>
             <span className="text-xs text-slate-400 font-mono-tabular">
               {isReadOnlySummary ? ui.modalSummaryHeader : ui.modalStepOf9(step)}
@@ -314,7 +314,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               <button
                 type="button"
                 onClick={onToggleAutoTts}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-pixel border border-slate-700 bg-slate-900 hover:border-slate-500 text-slate-200 cursor-pointer"
+                className="flex items-center gap-1.5 min-h-[36px] md:min-h-0 px-2.5 py-1.5 text-[10px] sm:text-[11px] font-pixel border border-slate-700 bg-slate-900 hover:border-slate-500 text-slate-200 whitespace-nowrap shrink-0 cursor-pointer"
               >
                 {autoTts ? (
                   <Volume2 className="w-3.5 h-3.5 text-cyan-300" />
@@ -327,7 +327,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
             <button
               type="button"
               onClick={handleCloseModal}
-              className="px-2.5 py-1.5 text-[11px] font-pixel border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer"
+              className="min-h-[36px] md:min-h-0 px-3 py-1.5 text-[10px] sm:text-[11px] font-pixel border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-200 whitespace-nowrap shrink-0 cursor-pointer"
             >
               {ui.mapButton}
             </button>
@@ -336,13 +336,13 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
         {/* Read-Only Summary View when equipment is already Concluído ✓ */}
         {isReadOnlySummary ? (
-          <div className="p-5 md:p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row items-center gap-5 bg-[#070b16] border border-slate-700 p-4">
+          <div className="p-4 sm:p-5 md:p-6 space-y-4 sm:space-y-5">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-5 bg-[#070b16] border border-slate-700 p-3.5 sm:p-4">
               <img
                 src={equipmentImg}
                 alt={script.shortName}
                 style={{ background: 'transparent', mixBlendMode: 'normal' }}
-                className="w-24 h-24 object-contain pixelated shrink-0"
+                className="w-20 h-20 sm:w-24 sm:h-24 object-contain pixelated shrink-0"
               />
               <div className="space-y-2 text-center sm:text-left">
                 <div className="inline-flex items-center gap-1.5 text-xs font-pixel text-emerald-300">
@@ -394,14 +394,14 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+                className="w-full sm:w-auto min-h-[46px] font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
               >
                 {script.backButtonLabel}
               </button>
             </div>
           </div>
         ) : (
-          <div className="p-5 md:p-6">
+          <div className="p-4 sm:p-5 md:p-6">
             {/* ETAPA 1: Card Inicial do Equipamento */}
             {step === 1 && (
               <div className="space-y-5">
@@ -447,7 +447,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                       setBalloonIdx(0);
                       setStep(2);
                     }}
-                    className="font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+                    className="w-full sm:w-auto min-h-[46px] font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
                   >
                     {script.startButtonLabel}
                   </button>
@@ -457,7 +457,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
 
             {/* ETAPAS 2, 5, 8: Blocos A, B, C (Balões sequenciais do astronauta) */}
             {(step === 2 || step === 5 || step === 8) && currentBalloons && (
-              <div className="space-y-5">
+              <div className="space-y-4 sm:space-y-5">
                 <div className="flex items-center justify-between text-xs text-slate-400">
                   <span className="font-pixel text-cyan-300">
                     {step === 2
@@ -471,14 +471,14 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-start gap-4 bg-[#070b16] border-2 border-slate-600 p-4">
+                <div className="flex items-start gap-3 sm:gap-4 bg-[#070b16] border-2 border-slate-600 p-3.5 sm:p-4">
                   <img
                     src="/astronauta.png"
                     alt={ui.astronautAlt}
                     style={{ background: 'transparent', mixBlendMode: 'normal' }}
-                    className="w-14 h-16 object-contain pixelated shrink-0 mt-1"
+                    className="w-11 h-14 sm:w-14 sm:h-16 object-contain pixelated shrink-0 mt-1"
                   />
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 min-w-0 space-y-2.5 sm:space-y-3">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-mono-tabular text-xs font-bold text-amber-300">
                         {currentBalloons[balloonIdx].code}
@@ -494,7 +494,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                           )
                         }
                         aria-label={ui.listenAria(currentBalloons[balloonIdx].code)}
-                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 cursor-pointer"
+                        className="flex items-center gap-1.5 min-h-[38px] sm:min-h-[32px] px-3 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 whitespace-nowrap shrink-0 cursor-pointer"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                         <span>
@@ -504,19 +504,19 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                         </span>
                       </button>
                     </div>
-                    <p className="text-base text-white leading-relaxed">
+                    <p className="text-[15px] sm:text-base text-white leading-relaxed">
                       "{currentBalloons[balloonIdx].text}"
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     data-testid="prev-balloon"
                     disabled={balloonIdx === 0}
                     onClick={handlePreviousBalloon}
-                    className={`font-pixel text-xs px-5 py-3 border-2 shadow-[0_3px_0_#040318] transition-colors ${
+                    className={`flex-1 sm:flex-initial min-h-[46px] font-pixel text-xs px-4 sm:px-5 py-3 border-2 shadow-[0_3px_0_#040318] transition-colors whitespace-nowrap ${
                       balloonIdx === 0
                         ? 'bg-slate-900 border-slate-700 text-slate-500 opacity-45 cursor-not-allowed'
                         : 'bg-slate-800 hover:bg-slate-700 border-slate-500 text-slate-100 cursor-pointer'
@@ -529,7 +529,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                     type="button"
                     data-testid="next-balloon"
                     onClick={handleContinueBalloon}
-                    className="font-pixel text-xs bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+                    className="flex-1 sm:flex-initial min-h-[46px] font-pixel text-xs bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold px-5 sm:px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] whitespace-nowrap cursor-pointer"
                   >
                     {ui.continueBtn}
                   </button>
@@ -563,15 +563,15 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                 const reward = step === 4 ? script.reward1 : script.reward2;
                 const nextStep: StageStep = step === 4 ? 5 : 8;
                 return (
-                  <div className="space-y-5">
-                    <div className="flex items-start gap-4 bg-[#070b16] border-2 border-slate-600 p-4">
+                  <div className="space-y-4 sm:space-y-5">
+                    <div className="flex items-start gap-3 sm:gap-4 bg-[#070b16] border-2 border-slate-600 p-3.5 sm:p-4">
                       <img
                         src="/astronauta.png"
                         alt={ui.astronautAlt}
                         style={{ background: 'transparent', mixBlendMode: 'normal' }}
-                        className="w-14 h-16 object-contain pixelated shrink-0 mt-1"
+                        className="w-11 h-14 sm:w-14 sm:h-16 object-contain pixelated shrink-0 mt-1"
                       />
-                      <div className="flex-1 space-y-2">
+                      <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-mono-tabular text-xs font-bold text-amber-300">
                             {reward.speechCode}
@@ -587,7 +587,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                               )
                             }
                             aria-label={ui.listenAria(reward.speechCode)}
-                            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 cursor-pointer"
+                            className="flex items-center gap-1.5 min-h-[38px] sm:min-h-[32px] px-3 py-1 text-xs font-pixel bg-slate-800 hover:bg-slate-700 border border-slate-600 text-cyan-200 whitespace-nowrap shrink-0 cursor-pointer"
                           >
                             <Volume2 className="w-3.5 h-3.5" />
                             <span>
@@ -597,27 +597,27 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                             </span>
                           </button>
                         </div>
-                        <p className="text-base text-white leading-relaxed">
+                        <p className="text-[15px] sm:text-base text-white leading-relaxed">
                           "{reward.speechText}"
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-emerald-950/45 border-2 border-emerald-400 p-4 flex items-start gap-4">
-                      <div className="relative p-3 bg-slate-950 border border-emerald-500/70 shrink-0 flex flex-col items-center gap-1.5">
+                    <div className="bg-emerald-950/45 border-2 border-emerald-400 p-3.5 sm:p-4 flex items-start gap-3 sm:gap-4">
+                      <div className="relative p-2.5 sm:p-3 bg-slate-950 border border-emerald-500/70 shrink-0 flex flex-col items-center gap-1.5">
                         <PartVisualIcon partKey={reward.partKey} />
                         <img
                           src={equipmentImg}
                           alt={reward.partName}
                           style={{ background: 'transparent', mixBlendMode: 'normal' }}
-                          className="w-9 h-9 object-contain pixelated opacity-90"
+                          className="w-8 h-8 sm:w-9 sm:h-9 object-contain pixelated opacity-90"
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <div className="font-pixel text-[11px] text-emerald-200">
+                      <div className="min-w-0 space-y-1.5">
+                        <div className="font-pixel text-[10px] sm:text-[11px] text-emerald-200">
                           {ui.materialAddedPrefix} · {reward.partName}
                         </div>
-                        <div className="font-pixel text-sm text-emerald-300">
+                        <div className="font-pixel text-xs sm:text-sm text-emerald-300">
                           {reward.cardTitle}
                         </div>
                         <p className="text-sm text-slate-200 leading-relaxed">
@@ -635,7 +635,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                           setBalloonIdx(0);
                           setStep(nextStep);
                         }}
-                        className="font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+                        className="w-full sm:w-auto min-h-[46px] font-pixel text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
                       >
                         {reward.nextButtonLabel}
                       </button>
@@ -653,7 +653,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   <p className="text-sm font-medium text-cyan-200">
                     {script.animationCaption}
                   </p>
-                  <div className="inline-flex items-center gap-2 text-xs font-pixel text-emerald-300 bg-emerald-950/50 border border-emerald-500/70 px-3.5 py-2">
+                  <div className="inline-flex items-center gap-2 text-xs font-pixel text-emerald-300 bg-emerald-950/50 border border-emerald-500/70 px-3 py-2 text-left sm:text-center">
                     <CheckCircle2 className="w-4 h-4 shrink-0" />
                     <span>{script.completionNotice}</span>
                   </div>
@@ -663,7 +663,7 @@ export const EquipmentModal: React.FC<EquipmentModalProps> = ({
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+                    className="w-full sm:w-auto min-h-[46px] font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-6 py-3 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
                   >
                     {script.backButtonLabel}
                   </button>

@@ -461,7 +461,10 @@ export interface UiStrings {
   soundMuteAria: string;
   damagedShipStatus: (count: number, total: number) => string;
   shipReadyBanner: string;
+  interactPromptMobile: string;
+  interactTargetBtn: (targetName: string) => string;
   controlsHint: string;
+  controlsHintMobile: string;
   takeoffIgnition: string;
   takeoffReturning: string;
   modalSummaryHeader: string;
@@ -527,8 +530,12 @@ export const UI_TEXT: Record<Language, UiStrings> = {
       `Nave avariada (${count}/${total} materiais). Explore o RTG e a Surveyor 3 para coletar as peças restantes.`,
     shipReadyBanner:
       'Nave reparada! Aproxime-se e clique na nave para voltar à Terra.',
+    interactPromptMobile: 'Toque para Interagir',
+    interactTargetBtn: (targetName) => `Interagir com ${targetName}`,
     controlsHint:
       'WASD / Setas ou Clique no mapa para andar · E / Espaço / Clique perto para interagir',
+    controlsHintMobile:
+      'Toque no mapa para andar · Toque no objeto perto para interagir',
     takeoffIgnition: 'IGNIÇÃO DOS MOTORES... DECOLANDO!',
     takeoffReturning: 'RETORNANDO PARA A TERRA...',
     modalSummaryHeader: 'Resumo · Concluído ✓',
@@ -593,8 +600,12 @@ export const UI_TEXT: Record<Language, UiStrings> = {
       `Ship damaged (${count}/${total} materials). Explore the RTG and Surveyor 3 to collect the remaining parts.`,
     shipReadyBanner:
       'Ship repaired! Walk close and click the ship to return to Earth.',
+    interactPromptMobile: 'Tap to Interact',
+    interactTargetBtn: (targetName) => `Interact with ${targetName}`,
     controlsHint:
       'WASD / Arrows or Click map to walk · E / Space / Click nearby to interact',
+    controlsHintMobile:
+      'Tap map to walk · Tap object nearby to interact',
     takeoffIgnition: 'ENGINE IGNITION... LIFTOFF!',
     takeoffReturning: 'RETURNING TO EARTH...',
     modalSummaryHeader: 'Summary · Completed ✓',

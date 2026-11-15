@@ -64,7 +64,7 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
         aria-pressed={lang === 'pt'}
         aria-label="Português (Brasil)"
         onClick={() => onChange('pt')}
-        className={`flex items-center gap-1.5 px-2 py-1.5 font-pixel text-[10px] md:text-[11px] transition-colors cursor-pointer ${
+        className={`flex items-center justify-center gap-1.5 min-h-[36px] md:min-h-0 px-2.5 py-1.5 font-pixel text-[10px] md:text-[11px] whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
           lang === 'pt'
             ? 'bg-amber-400 text-slate-950 font-bold'
             : 'bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white'
@@ -80,7 +80,7 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
         aria-pressed={lang === 'en'}
         aria-label="English (US)"
         onClick={() => onChange('en')}
-        className={`flex items-center gap-1.5 px-2 py-1.5 font-pixel text-[10px] md:text-[11px] transition-colors cursor-pointer ${
+        className={`flex items-center justify-center gap-1.5 min-h-[36px] md:min-h-0 px-2.5 py-1.5 font-pixel text-[10px] md:text-[11px] whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
           lang === 'en'
             ? 'bg-amber-400 text-slate-950 font-bold'
             : 'bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white'

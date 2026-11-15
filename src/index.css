@@ -12,12 +12,27 @@
   #root {
     width: 100%;
     height: 100%;
+    height: 100dvh;
     margin: 0;
     padding: 0;
     overflow: hidden;
     background-color: #05070e;
     font-family: var(--font-sans);
+    touch-action: manipulation;
   }
+
+  button,
+  a {
+    touch-action: manipulation;
+  }
+}
+
+.stage-container {
+  container-type: inline-size;
+}
+
+.stage-viewport-fit {
+  container-type: size;
 }
 
 .font-pixel {
@@ -37,4 +52,5 @@
 .hud-text-shadow {
   text-shadow: 0 2px 0 #05070e, 1px 0 0 #05070e, -1px 0 0 #05070e, 0 -1px 0 #05070e;
 }
+
 

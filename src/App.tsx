@@ -413,293 +413,336 @@ export default function App() {
   const takeoffScale = Math.max(0.22, 1 - takeoffEase * 0.78);
   const takeoffRotate = takeoffEase * 32;
 
+  const nearbyDisplayName =
+    nearbyTarget === 'rtg'
+      ? 'RTG'
+      : nearbyTarget === 'surveyor3'
+      ? 'Surveyor 3'
+      : nearbyTarget === 'nave'
+      ? ui.shipLabel
+      : null;
+
   return (
-    <main className="relative w-screen h-screen bg-[#040318] flex items-center justify-center overflow-hidden">
+    <main className="relative w-full h-[100dvh] bg-[#040318] flex flex-col md:flex-row md:items-center md:justify-center overflow-hidden">
       {/* 16:9 Lunar Map Stage preserving exact aspect ratio of mapa_lunar.png */}
-      <div
-        ref={stageRef}
-        data-testid="lunar-map-stage"
-        onClick={handleStageClick}
-        className="relative aspect-[1376/768] w-[min(100vw,calc(100vh*1376/768))] h-[min(100vh,calc(100vw*768/1376))] overflow-hidden select-none cursor-crosshair"
-      >
-        {/* 1. Background Map Image (mapa_lunar.png) */}
-        <img
-          src="/mapa_lunar.png"
-          alt={ui.mapAlt}
-          draggable={false}
-          style={{ background: 'transparent', mixBlendMode: 'normal' }}
-          className="absolute inset-0 w-full h-full object-contain pixelated pointer-events-none select-none"
-        />
-
-        {/* 2. RTG (Left equipment at end of left dotted trail) */}
+      <div className="stage-viewport-fit order-2 md:order-none flex-1 min-h-0 w-full md:h-full flex items-center justify-center px-1 sm:px-2 md:px-0">
         <div
-          style={{ left: `${RTG_MAP_POS.x}%`, top: `${RTG_MAP_POS.y}%` }}
-          className="absolute -translate-x-1/2 -translate-y-[68%] z-10 flex flex-col items-center"
+          ref={stageRef}
+          data-testid="lunar-map-stage"
+          onClick={handleStageClick}
+          className="stage-container relative w-[min(100cqw,calc(100cqh*1376/768))] h-[min(100cqh,calc(100cqw*768/1376))] overflow-hidden select-none cursor-crosshair"
         >
-          {phase === 'map' && nearbyTarget === 'rtg' && (
-            <button
-              type="button"
-              data-testid="interact-rtg"
-              onClick={(e) => {
-                e.stopPropagation();
-                interactWithTarget('rtg');
-              }}
-              className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
-            >
-              {ui.interactPrompt}
-            </button>
-          )}
+          {/* 1. Background Map Image (mapa_lunar.png) */}
+          <img
+            src="/mapa_lunar.png"
+            alt={ui.mapAlt}
+            draggable={false}
+            style={{ background: 'transparent', mixBlendMode: 'normal' }}
+            className="absolute inset-0 w-full h-full object-contain pixelated pointer-events-none select-none"
+          />
 
-          <button
-            type="button"
-            data-testid="object-rtg"
-            onClick={(e) => handleObjectClick(e, 'rtg', RTG_MAP_POS)}
-            aria-label="RTG"
-            className={`group relative cursor-pointer transition-transform duration-150 ${
-              nearbyTarget === 'rtg' ? 'scale-105' : 'hover:scale-105'
+          {/* 2. RTG (Left equipment at end of left dotted trail) */}
+          <div
+            style={{ left: `${RTG_MAP_POS.x}%`, top: `${RTG_MAP_POS.y}%` }}
+            className={`absolute -translate-x-1/2 -translate-y-[68%] flex flex-col items-center ${
+              nearbyTarget === 'rtg' ? 'z-30' : 'z-10'
             }`}
           >
-            <img
-              src="/rtg.png"
-              alt="RTG"
-              draggable={false}
-              style={{ background: 'transparent', mixBlendMode: 'normal' }}
-              className="w-14 h-20 md:w-20 md:h-28 object-contain pixelated drop-shadow-[0_6px_6px_rgba(0,0,0,0.65)]"
-            />
-          </button>
-
-          <span
-            data-testid="label-rtg"
-            className={`mt-1 whitespace-nowrap font-pixel text-[10px] md:text-[11px] px-2 py-0.5 border bg-[#090b1f]/90 ${
-              equipmentProgress.rtg.completed
-                ? 'border-emerald-400 text-emerald-300'
-                : 'border-cyan-400/70 text-cyan-200'
-            }`}
-          >
-            {equipmentProgress.rtg.completed ? `RTG · ${ui.completedBadge}` : 'RTG'}
-          </span>
-        </div>
-
-        {/* 3. Surveyor 3 (Right equipment at end of right dotted trail) */}
-        <div
-          style={{ left: `${SURVEYOR_MAP_POS.x}%`, top: `${SURVEYOR_MAP_POS.y}%` }}
-          className="absolute -translate-x-1/2 -translate-y-[68%] z-10 flex flex-col items-center"
-        >
-          {phase === 'map' && nearbyTarget === 'surveyor3' && (
-            <button
-              type="button"
-              data-testid="interact-surveyor3"
-              onClick={(e) => {
-                e.stopPropagation();
-                interactWithTarget('surveyor3');
-              }}
-              className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
-            >
-              {ui.interactPrompt}
-            </button>
-          )}
-
-          <button
-            type="button"
-            data-testid="object-surveyor3"
-            onClick={(e) => handleObjectClick(e, 'surveyor3', SURVEYOR_MAP_POS)}
-            aria-label="Surveyor 3"
-            className={`group relative cursor-pointer transition-transform duration-150 ${
-              nearbyTarget === 'surveyor3' ? 'scale-105' : 'hover:scale-105'
-            }`}
-          >
-            <img
-              src="/surveyor3.png"
-              alt="Surveyor 3"
-              draggable={false}
-              style={{ background: 'transparent', mixBlendMode: 'normal' }}
-              className="w-20 h-20 md:w-28 md:h-28 object-contain pixelated drop-shadow-[0_6px_6px_rgba(0,0,0,0.65)]"
-            />
-          </button>
-
-          <span
-            data-testid="label-surveyor3"
-            className={`mt-1 whitespace-nowrap font-pixel text-[10px] md:text-[11px] px-2 py-0.5 border bg-[#090b1f]/90 ${
-              equipmentProgress.surveyor3.completed
-                ? 'border-emerald-400 text-emerald-300'
-                : 'border-amber-400/70 text-amber-200'
-            }`}
-          >
-            {equipmentProgress.surveyor3.completed
-              ? `Surveyor 3 · ${ui.completedBadge}`
-              : 'Surveyor 3'}
-          </span>
-        </div>
-
-        {/* 4. Central Nave (nave.png) */}
-        <div
-          style={{
-            left: `${phase === 'takeoff' ? takeoffX : NAVE_MAP_POS.x}%`,
-            top: `${phase === 'takeoff' ? takeoffY : NAVE_MAP_POS.y}%`,
-            transform:
-              phase === 'takeoff'
-                ? `translate(-50%, -65%) scale(${takeoffScale}) rotate(${takeoffRotate}deg)`
-                : 'translate(-50%, -65%)',
-          }}
-          className="absolute z-10 flex flex-col items-center"
-        >
-          {phase === 'map' && nearbyTarget === 'nave' && (
-            <button
-              type="button"
-              data-testid="interact-nave"
-              onClick={(e) => {
-                e.stopPropagation();
-                interactWithTarget('nave');
-              }}
-              className="mb-1.5 whitespace-nowrap font-pixel text-[10px] md:text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-2.5 py-1 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
-            >
-              {ui.interactPrompt}
-            </button>
-          )}
-
-          <button
-            type="button"
-            data-testid="object-nave"
-            disabled={phase === 'takeoff'}
-            onClick={(e) => handleObjectClick(e, 'nave', NAVE_MAP_POS)}
-            aria-label={ui.shipLabel}
-            className={`relative focus:outline-none transition-transform duration-150 ${
-              phase === 'takeoff'
-                ? 'cursor-default'
-                : naveReady
-                ? 'cursor-pointer hover:scale-105'
-                : 'cursor-pointer hover:scale-[1.02]'
-            }`}
-          >
-            {/* Pulsing emerald/cyan readiness aura when 4/4 repaired */}
-            {naveReady && phase !== 'takeoff' && (
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 -m-2 rounded-full border-2 border-emerald-400/80 shadow-[0_0_24px_rgba(52,211,153,0.75)] animate-pulse pointer-events-none"
-              />
+            {phase === 'map' && nearbyTarget === 'rtg' && (
+              <button
+                type="button"
+                data-testid="interact-rtg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  interactWithTarget('rtg');
+                }}
+                className="absolute bottom-full mb-1 sm:mb-1.5 left-0 lg:left-1/2 lg:-translate-x-1/2 whitespace-nowrap font-pixel text-[9px] sm:text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2 py-1 md:px-2.5 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+              >
+                <span className="md:hidden">{ui.interactPromptMobile}</span>
+                <span className="hidden md:inline">{ui.interactPrompt}</span>
+              </button>
             )}
 
-            {/* Subtle smoke puffs when damaged (0/4 to 3/4) */}
-            {!naveReady && phase === 'map' && (
-              <span
-                aria-hidden="true"
-                className="absolute -top-3 left-1/2 -translate-x-1/2 flex gap-1 pointer-events-none"
+            <button
+              type="button"
+              data-testid="object-rtg"
+              onClick={(e) => handleObjectClick(e, 'rtg', RTG_MAP_POS)}
+              aria-label="RTG"
+              className={`group relative cursor-pointer transition-transform duration-150 ${
+                nearbyTarget === 'rtg' ? 'scale-105' : 'hover:scale-105'
+              }`}
+            >
+              <img
+                src="/rtg.png"
+                alt="RTG"
+                draggable={false}
+                style={{ background: 'transparent', mixBlendMode: 'normal' }}
+                className="w-[clamp(38px,5.8cqw,80px)] h-[clamp(52px,8.2cqw,112px)] object-contain pixelated drop-shadow-[0_6px_6px_rgba(0,0,0,0.65)]"
+              />
+            </button>
+
+            <span
+              data-testid="label-rtg"
+              className={`mt-0.5 sm:mt-1 whitespace-nowrap font-pixel text-[8px] sm:text-[10px] md:text-[11px] px-1.5 sm:px-2 py-0.5 border bg-[#090b1f]/90 ${
+                equipmentProgress.rtg.completed
+                  ? 'border-emerald-400 text-emerald-300'
+                  : 'border-cyan-400/70 text-cyan-200'
+              }`}
+            >
+              {equipmentProgress.rtg.completed ? `RTG · ${ui.completedBadge}` : 'RTG'}
+            </span>
+          </div>
+
+          {/* 3. Surveyor 3 (Right equipment at end of right dotted trail) */}
+          <div
+            style={{ left: `${SURVEYOR_MAP_POS.x}%`, top: `${SURVEYOR_MAP_POS.y}%` }}
+            className={`absolute -translate-x-1/2 -translate-y-[68%] flex flex-col items-center ${
+              nearbyTarget === 'surveyor3' ? 'z-30' : 'z-10'
+            }`}
+          >
+            {phase === 'map' && nearbyTarget === 'surveyor3' && (
+              <button
+                type="button"
+                data-testid="interact-surveyor3"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  interactWithTarget('surveyor3');
+                }}
+                className="absolute bottom-full mb-1 sm:mb-1.5 right-0 lg:right-auto lg:left-1/2 lg:-translate-x-1/2 whitespace-nowrap font-pixel text-[9px] sm:text-[10px] md:text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-2 py-1 md:px-2.5 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-800/75 animate-ping" />
-                <span className="w-2 h-2 rounded-full bg-orange-500/80 animate-pulse" />
+                <span className="md:hidden">{ui.interactPromptMobile}</span>
+                <span className="hidden md:inline">{ui.interactPrompt}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              data-testid="object-surveyor3"
+              onClick={(e) => handleObjectClick(e, 'surveyor3', SURVEYOR_MAP_POS)}
+              aria-label="Surveyor 3"
+              className={`group relative cursor-pointer transition-transform duration-150 ${
+                nearbyTarget === 'surveyor3' ? 'scale-105' : 'hover:scale-105'
+              }`}
+            >
+              <img
+                src="/surveyor3.png"
+                alt="Surveyor 3"
+                draggable={false}
+                style={{ background: 'transparent', mixBlendMode: 'normal' }}
+                className="w-[clamp(50px,8.2cqw,112px)] h-[clamp(50px,8.2cqw,112px)] object-contain pixelated drop-shadow-[0_6px_6px_rgba(0,0,0,0.65)]"
+              />
+            </button>
+
+            <span
+              data-testid="label-surveyor3"
+              className={`mt-0.5 sm:mt-1 whitespace-nowrap font-pixel text-[8px] sm:text-[10px] md:text-[11px] px-1.5 sm:px-2 py-0.5 border bg-[#090b1f]/90 ${
+                equipmentProgress.surveyor3.completed
+                  ? 'border-emerald-400 text-emerald-300'
+                  : 'border-amber-400/70 text-amber-200'
+              }`}
+            >
+              {equipmentProgress.surveyor3.completed
+                ? `Surveyor 3 · ${ui.completedBadge}`
+                : 'Surveyor 3'}
+            </span>
+          </div>
+
+          {/* 4. Central Nave (nave.png) */}
+          <div
+            style={{
+              left: `${phase === 'takeoff' ? takeoffX : NAVE_MAP_POS.x}%`,
+              top: `${phase === 'takeoff' ? takeoffY : NAVE_MAP_POS.y}%`,
+              transform:
+                phase === 'takeoff'
+                  ? `translate(-50%, -65%) scale(${takeoffScale}) rotate(${takeoffRotate}deg)`
+                  : 'translate(-50%, -65%)',
+            }}
+            className={`absolute flex flex-col items-center ${
+              nearbyTarget === 'nave' ? 'z-30' : 'z-10'
+            }`}
+          >
+            {phase === 'map' && nearbyTarget === 'nave' && (
+              <button
+                type="button"
+                data-testid="interact-nave"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  interactWithTarget('nave');
+                }}
+                className="absolute bottom-full mb-1 sm:mb-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap font-pixel text-[9px] sm:text-[10px] md:text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-2 py-1 md:px-2.5 border-2 border-slate-950 shadow-[0_3px_0_#040318] cursor-pointer"
+              >
+                <span className="md:hidden">{ui.interactPromptMobile}</span>
+                <span className="hidden md:inline">{ui.interactPrompt}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              data-testid="object-nave"
+              disabled={phase === 'takeoff'}
+              onClick={(e) => handleObjectClick(e, 'nave', NAVE_MAP_POS)}
+              aria-label={ui.shipLabel}
+              className={`relative focus:outline-none transition-transform duration-150 ${
+                phase === 'takeoff'
+                  ? 'cursor-default'
+                  : naveReady
+                  ? 'cursor-pointer hover:scale-105'
+                  : 'cursor-pointer hover:scale-[1.02]'
+              }`}
+            >
+              {/* Pulsing emerald/cyan readiness aura when 4/4 repaired */}
+              {naveReady && phase !== 'takeoff' && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 -m-2 rounded-full border-2 border-emerald-400/80 shadow-[0_0_24px_rgba(52,211,153,0.75)] animate-pulse pointer-events-none"
+                />
+              )}
+
+              {/* Subtle smoke puffs when damaged (0/4 to 3/4) */}
+              {!naveReady && phase === 'map' && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -top-2.5 left-1/2 -translate-x-1/2 flex gap-1 pointer-events-none"
+                >
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-slate-800/75 animate-ping" />
+                  <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500/80 animate-pulse" />
+                </span>
+              )}
+
+              <img
+                src="/nave.png"
+                alt={ui.shipLabel}
+                draggable={false}
+                style={{ background: 'transparent', mixBlendMode: 'normal' }}
+                className="w-[clamp(56px,9.4cqw,128px)] h-[clamp(56px,9.4cqw,128px)] object-contain pixelated drop-shadow-[0_8px_8px_rgba(0,0,0,0.7)]"
+              />
+
+              {/* Takeoff thruster flame */}
+              {phase === 'takeoff' && (
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-5 h-7 sm:w-6 sm:h-8 bg-gradient-to-b from-yellow-200 via-orange-500 to-transparent rounded-full blur-[1px] pointer-events-none"
+                />
+              )}
+            </button>
+
+            {phase !== 'takeoff' && (
+              <span
+                className={`mt-0.5 sm:mt-1 whitespace-nowrap font-pixel text-[8px] sm:text-[10px] md:text-[11px] px-1.5 sm:px-2 py-0.5 border bg-[#090b1f]/90 ${
+                  naveReady
+                    ? 'border-emerald-400 text-emerald-300'
+                    : 'border-slate-500 text-slate-200'
+                }`}
+              >
+                {naveReady ? ui.shipReadyLabel : ui.shipLabel}
               </span>
             )}
+          </div>
 
-            <img
-              src="/nave.png"
-              alt={ui.shipLabel}
-              draggable={false}
-              style={{ background: 'transparent', mixBlendMode: 'normal' }}
-              className="w-24 h-24 md:w-32 md:h-32 object-contain pixelated drop-shadow-[0_8px_8px_rgba(0,0,0,0.7)]"
-            />
-
-            {/* Takeoff thruster flame */}
-            {phase === 'takeoff' && (
+          {/* 5. Free-Roaming Astronaut (astronauta.png) */}
+          {phase !== 'takeoff' && phase !== 'final' && (
+            <div
+              data-testid="astronaut-sprite"
+              style={{
+                left: `${astroPos.x}%`,
+                top: `${astroPos.y}%`,
+                transform: `translate(-50%, -88%)`,
+              }}
+              className="absolute z-20 pointer-events-none flex flex-col items-center"
+            >
+              <img
+                src="/astronauta.png"
+                alt={ui.astronautAlt}
+                draggable={false}
+                style={{
+                  background: 'transparent',
+                  mixBlendMode: 'normal',
+                  transform: `scaleX(${facing === 'right' ? -1 : 1}) translateY(${walkBobY}px)`,
+                }}
+                className="w-[clamp(34px,4.8cqw,64px)] h-[clamp(44px,6cqw,80px)] object-contain pixelated drop-shadow-[0_4px_4px_rgba(0,0,0,0.7)]"
+              />
               <span
                 aria-hidden="true"
-                className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-6 h-8 bg-gradient-to-b from-yellow-200 via-orange-500 to-transparent rounded-full blur-[1px] pointer-events-none"
+                className={`w-6 sm:w-8 h-1.5 sm:h-2 -mt-1 rounded-full bg-black/50 ${
+                  isMoving ? 'scale-x-90' : 'scale-x-100'
+                }`}
               />
-            )}
-          </button>
+            </div>
+          )}
 
-          {phase !== 'takeoff' && (
-            <span
-              className={`mt-1 whitespace-nowrap font-pixel text-[10px] md:text-[11px] px-2 py-0.5 border bg-[#090b1f]/90 ${
-                naveReady
-                  ? 'border-emerald-400 text-emerald-300'
-                  : 'border-slate-500 text-slate-200'
-              }`}
-            >
-              {naveReady ? ui.shipReadyLabel : ui.shipLabel}
-            </span>
+          {/* Takeoff Banner */}
+          {phase === 'takeoff' && (
+            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 max-w-[92%] z-30 bg-[#040318]/90 border-2 border-amber-400 px-3 sm:px-6 py-2 sm:py-2.5 font-pixel text-[10px] sm:text-xs md:text-sm text-amber-300 text-center">
+              {takeoffProgress < 0.25 ? ui.takeoffIgnition : ui.takeoffReturning}
+            </div>
           )}
         </div>
-
-        {/* 5. Free-Roaming Astronaut (astronauta.png) */}
-        {phase !== 'takeoff' && phase !== 'final' && (
-          <div
-            data-testid="astronaut-sprite"
-            style={{
-              left: `${astroPos.x}%`,
-              top: `${astroPos.y}%`,
-              transform: `translate(-50%, -88%)`,
-            }}
-            className="absolute z-20 pointer-events-none flex flex-col items-center"
-          >
-            <img
-              src="/astronauta.png"
-              alt={ui.astronautAlt}
-              draggable={false}
-              style={{
-                background: 'transparent',
-                mixBlendMode: 'normal',
-                transform: `scaleX(${facing === 'right' ? -1 : 1}) translateY(${walkBobY}px)`,
-              }}
-              className="w-12 h-16 md:w-16 md:h-20 object-contain pixelated drop-shadow-[0_4px_4px_rgba(0,0,0,0.7)]"
-            />
-            <span
-              aria-hidden="true"
-              className={`w-8 h-2 -mt-1 rounded-full bg-black/50 ${
-                isMoving ? 'scale-x-90' : 'scale-x-100'
-              }`}
-            />
-          </div>
-        )}
-
-        {/* Takeoff Banner */}
-        {phase === 'takeoff' && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-[#040318]/90 border-2 border-amber-400 px-6 py-2.5 font-pixel text-xs md:text-sm text-amber-300 whitespace-nowrap">
-            {takeoffProgress < 0.25 ? ui.takeoffIgnition : ui.takeoffReturning}
-          </div>
-        )}
       </div>
 
       {/* TOP HUD (Visible during map & equipment exploration) */}
       {(phase === 'map' || phase === 'equipment') && (
-        <div className="fixed top-0 left-0 right-0 z-20 flex flex-wrap md:flex-nowrap items-start justify-between gap-3 p-3 md:p-4 pointer-events-none">
-          {/* Repair Progress Bar with Gear Icon & "X/4 materiais" */}
-          <div className="pointer-events-auto shrink-0 bg-[#0b1120]/95 border-2 border-slate-600 px-4 py-2.5 shadow-[0_4px_0_#040318]">
-            <div className="flex items-center gap-2.5 mb-2">
-              <Settings
-                className={`w-4 h-4 ${naveReady ? 'text-emerald-400' : 'text-amber-300'}`}
-                aria-hidden="true"
-              />
-              <span className="font-pixel text-xs text-slate-100">{ui.shipRepairHud}</span>
-              <span
-                data-testid="materials-counter"
-                className={`font-mono-tabular font-bold text-xs px-2 py-0.5 border ${
-                  naveReady
-                    ? 'bg-emerald-950 border-emerald-400 text-emerald-300'
-                    : 'bg-slate-900 border-slate-600 text-amber-300'
-                }`}
-              >
-                {collectedCount}/{TOTAL_REQUIRED_PARTS} {ui.materialsUnit}
-              </span>
+        <div className="order-1 md:order-none w-full shrink-0 md:fixed md:top-0 md:left-0 md:right-0 z-20 flex flex-col md:flex-row items-stretch md:items-start justify-between gap-2 md:gap-3 px-2.5 pt-2.5 pb-1 md:p-4 pointer-events-none">
+          <div className="flex items-center justify-between gap-2 w-full md:contents">
+            {/* Repair Progress Bar with Gear Icon & "X/4 materiais" */}
+            <div className="pointer-events-auto md:order-1 shrink-0 bg-[#0b1120]/95 border-2 border-slate-600 px-2.5 py-1.5 sm:px-3.5 sm:py-2 md:px-4 md:py-2.5 shadow-[0_4px_0_#040318]">
+              <div className="flex items-center gap-1.5 sm:gap-2.5 mb-1.5 md:mb-2">
+                <Settings
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${
+                    naveReady ? 'text-emerald-400' : 'text-amber-300'
+                  }`}
+                  aria-hidden="true"
+                />
+                <span className="hidden sm:inline font-pixel text-[11px] md:text-xs text-slate-100 whitespace-nowrap">
+                  {ui.shipRepairHud}
+                </span>
+                <span
+                  data-testid="materials-counter"
+                  className={`font-mono-tabular font-bold text-[11px] md:text-xs px-1.5 sm:px-2 py-0.5 border whitespace-nowrap ${
+                    naveReady
+                      ? 'bg-emerald-950 border-emerald-400 text-emerald-300'
+                      : 'bg-slate-900 border-slate-600 text-amber-300'
+                  }`}
+                >
+                  {collectedCount}/{TOTAL_REQUIRED_PARTS} {ui.materialsUnit}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-4 gap-1 sm:gap-1.5 w-32 sm:w-44 md:w-52">
+                {[
+                  inventory.peca1_cameraTV,
+                  inventory.peca2_conchaColetora,
+                  inventory.peca3_termopares,
+                  inventory.peca4_condicionamentoEnergia,
+                ].map((filled, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-2 sm:h-2.5 border ${
+                      filled
+                        ? naveReady
+                          ? 'bg-emerald-400 border-emerald-200'
+                          : 'bg-amber-400 border-amber-200'
+                        : 'bg-slate-900 border-slate-700'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-1.5 w-52">
-              {[
-                inventory.peca1_cameraTV,
-                inventory.peca2_conchaColetora,
-                inventory.peca3_termopares,
-                inventory.peca4_condicionamentoEnergia,
-              ].map((filled, idx) => (
-                <div
-                  key={idx}
-                  className={`h-2.5 border ${
-                    filled
-                      ? naveReady
-                        ? 'bg-emerald-400 border-emerald-200'
-                        : 'bg-amber-400 border-amber-200'
-                      : 'bg-slate-900 border-slate-700'
-                  }`}
-                />
-              ))}
+            {/* Right Language & Audio Controls */}
+            <div className="pointer-events-auto md:order-3 shrink-0 flex items-center gap-1.5 sm:gap-2">
+              <LanguageToggle lang={lang} onChange={handleChangeLang} />
+              <button
+                type="button"
+                onClick={() => {
+                  retroAudio.muted = !retroAudio.muted;
+                  setMuted(retroAudio.muted);
+                }}
+                aria-label={muted ? ui.soundEnableAria : ui.soundMuteAria}
+                className="flex items-center justify-center gap-1.5 min-h-[38px] min-w-[38px] md:min-h-0 md:min-w-0 font-pixel text-[11px] bg-[#0b1120]/95 hover:bg-slate-800 text-slate-200 border-2 border-slate-600 px-2.5 sm:px-3 py-1.5 md:py-2 shadow-[0_4px_0_#040318] whitespace-nowrap cursor-pointer"
+              >
+                {muted ? <VolumeX className="w-4 h-4 shrink-0" /> : <Volume2 className="w-4 h-4 shrink-0" />}
+                <span className="hidden sm:inline">{muted ? ui.soundMuted : ui.soundOn}</span>
+              </button>
             </div>
           </div>
 
@@ -708,7 +751,7 @@ export default function App() {
             <div
               data-testid="mission-bubble"
               role="status"
-              className={`pointer-events-auto relative order-3 md:order-2 w-full md:w-auto md:max-w-lg mx-auto flex items-center gap-3 px-3.5 py-2 border-2 shadow-[0_4px_0_#040318] ${
+              className={`pointer-events-auto relative md:order-2 w-full md:w-auto md:max-w-lg [@media(max-height:520px)]:max-w-sm md:mx-auto flex items-center gap-2.5 sm:gap-3 px-2.5 py-1.5 sm:px-3.5 sm:py-2 [@media(max-height:520px)]:py-1 [@media(max-height:520px)]:px-2.5 border-2 shadow-[0_4px_0_#040318] ${
                 naveReady
                   ? 'bg-emerald-950/95 border-emerald-400 text-emerald-100'
                   : 'bg-[#0b1120]/95 border-cyan-400 text-slate-100'
@@ -719,21 +762,21 @@ export default function App() {
                 alt=""
                 aria-hidden="true"
                 style={{ background: 'transparent', mixBlendMode: 'normal' }}
-                className="w-8 h-10 object-contain pixelated shrink-0"
+                className="w-6 h-8 sm:w-8 sm:h-10 [@media(max-height:520px)]:hidden object-contain pixelated shrink-0"
               />
               <div className="min-w-0">
                 <div
-                  className={`font-pixel text-[10px] mb-0.5 ${
+                  className={`font-pixel text-[9px] sm:text-[10px] mb-0.5 ${
                     naveReady ? 'text-emerald-300' : 'text-amber-300'
                   }`}
                 >
                   {ui.missionObjectiveTitle}
                 </div>
-                <p className="text-xs leading-snug">{missionBubbleText}</p>
+                <p className="text-[11px] sm:text-xs [@media(max-height:520px)]:text-[11px] leading-snug">{missionBubbleText}</p>
               </div>
               <span
                 aria-hidden="true"
-                className={`hidden md:block absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-r-2 border-b-2 ${
+                className={`hidden md:block [@media(max-height:520px)]:hidden absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-r-2 border-b-2 ${
                   naveReady
                     ? 'bg-emerald-950 border-emerald-400'
                     : 'bg-[#0b1120] border-cyan-400'
@@ -741,36 +784,34 @@ export default function App() {
               />
             </div>
           )}
-
-          {/* Right Language & Audio Controls */}
-          <div className="pointer-events-auto order-2 md:order-3 shrink-0 flex items-center gap-2">
-            <LanguageToggle lang={lang} onChange={handleChangeLang} />
-            <button
-              type="button"
-              onClick={() => {
-                retroAudio.muted = !retroAudio.muted;
-                setMuted(retroAudio.muted);
-              }}
-              aria-label={muted ? ui.soundEnableAria : ui.soundMuteAria}
-              className="flex items-center gap-1.5 font-pixel text-[11px] bg-[#0b1120]/95 hover:bg-slate-800 text-slate-200 border-2 border-slate-600 px-3 py-2 shadow-[0_4px_0_#040318] cursor-pointer"
-            >
-              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              <span>{muted ? ui.soundMuted : ui.soundOn}</span>
-            </button>
-          </div>
         </div>
       )}
 
       {/* BOTTOM CONTROLS & STATUS NOTICE */}
       {phase === 'map' && (
-        <div className="fixed bottom-3 left-0 right-0 z-20 flex flex-col items-center gap-2 px-4 pointer-events-none">
+        <div className="order-3 md:order-none w-full shrink-0 md:fixed md:bottom-3 md:left-0 md:right-0 z-20 flex flex-col items-center gap-2 px-3 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:py-0 md:px-4 pointer-events-none">
           {naveStatusMessage && (
             <div
               role="status"
-              className="pointer-events-auto bg-amber-950/95 border-2 border-amber-400 text-amber-100 font-pixel text-[11px] px-4 py-2 shadow-[0_3px_0_#040318] text-center"
+              className="pointer-events-auto w-full max-w-md md:w-auto bg-amber-950/95 border-2 border-amber-400 text-amber-100 font-pixel text-[10px] sm:text-[11px] px-3.5 py-2 shadow-[0_3px_0_#040318] text-center"
             >
               {naveStatusMessage}
             </div>
+          )}
+
+          {nearbyTarget && nearbyDisplayName && (
+            <button
+              type="button"
+              data-testid="mobile-nearby-interact"
+              onClick={() => interactWithTarget(nearbyTarget)}
+              className={`md:hidden pointer-events-auto w-full max-w-sm min-h-[46px] flex items-center justify-center font-pixel text-xs font-bold px-4 py-2.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer ${
+                nearbyTarget === 'nave' && naveReady
+                  ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950'
+                  : 'bg-amber-400 hover:bg-amber-300 text-slate-950'
+              }`}
+            >
+              {ui.interactTargetBtn(nearbyDisplayName)}
+            </button>
           )}
 
           {naveReady && (
@@ -786,35 +827,36 @@ export default function App() {
                   );
                 }
               }}
-              className="pointer-events-auto flex items-center gap-2 font-pixel text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-5 py-2.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
+              className="pointer-events-auto w-full max-w-sm md:w-auto min-h-[44px] flex items-center justify-center gap-2 font-pixel text-[11px] md:text-xs bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold px-4 md:px-5 py-2.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer text-center"
             >
-              <Rocket className="w-4 h-4" aria-hidden="true" />
+              <Rocket className="w-4 h-4 shrink-0" aria-hidden="true" />
               <span>{ui.shipReadyBanner}</span>
             </button>
           )}
 
-          <div className="pointer-events-auto bg-[#0b1120]/90 border border-slate-700 px-4 py-1.5 text-[11px] font-pixel text-slate-300 text-center shadow-[0_3px_0_#040318]">
-            {ui.controlsHint}
+          <div className="pointer-events-auto w-full max-w-md md:w-auto bg-[#0b1120]/90 border border-slate-700 px-3 sm:px-4 py-1.5 text-[10px] sm:text-[11px] font-pixel text-slate-300 text-center shadow-[0_3px_0_#040318]">
+            <span className="md:hidden">{ui.controlsHintMobile}</span>
+            <span className="hidden md:inline">{ui.controlsHint}</span>
           </div>
         </div>
       )}
 
       {/* INTRO MODAL */}
       {phase === 'intro' && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#040318]/75 p-4 pointer-events-auto">
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#040318]/75 p-3 sm:p-4 pointer-events-auto">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="intro-title"
-            className="w-full max-w-lg bg-[#0b1120] border-2 border-slate-500 p-6 md:p-8 shadow-[0_8px_0_#040318] text-center space-y-5"
+            className="w-full max-w-lg max-h-[92dvh] overflow-y-auto bg-[#0b1120] border-2 border-slate-500 p-5 sm:p-6 md:p-8 shadow-[0_8px_0_#040318] text-center space-y-4 sm:space-y-5"
           >
             <div className="flex justify-end">
               <LanguageToggle lang={lang} onChange={handleChangeLang} />
             </div>
-            <div className="text-xs font-pixel text-cyan-300 tracking-widest">
+            <div className="text-[11px] sm:text-xs font-pixel text-cyan-300 tracking-widest">
               {ui.introBadge}
             </div>
-            <h1 id="intro-title" className="font-pixel text-2xl md:text-3xl text-amber-300">
+            <h1 id="intro-title" className="font-pixel text-xl sm:text-2xl md:text-3xl text-amber-300">
               {ui.introTitle}
             </h1>
             <p className="text-sm md:text-base text-slate-200 leading-relaxed">
@@ -824,7 +866,7 @@ export default function App() {
               type="button"
               data-start="true"
               onClick={startMission}
-              className="font-pixel text-sm bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-8 py-3.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
+              className="w-full sm:w-auto min-h-[48px] font-pixel text-sm bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-8 py-3.5 border-2 border-slate-950 shadow-[0_4px_0_#040318] cursor-pointer"
             >
               {ui.startMissionBtn}
             </button>
