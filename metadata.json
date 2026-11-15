@@ -1,0 +1,6 @@
+{
+  "name": "Lunar Odyssey",
+  "description": "Aventura lunar em pixel art 16-bit estilo SNES com mapa estelar top-down e fases de plataforma.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
